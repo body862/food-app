@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/food_model.dart';
-import '../controller/cart_controller.dart';
+import '../cubit/app_cubit.dart';
 class DetailsScreen extends StatelessWidget {
   final FoodModel food;
   const DetailsScreen({super.key, required this.food});
@@ -18,7 +19,7 @@ class DetailsScreen extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            CartController.addToCart(food);
+            context.read<AppCubit>().addToCart(food);
             Navigator.pop(context);
           },
           child: const Text("Add To Cart"),
@@ -44,11 +45,10 @@ class DetailsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    info(Icons.star, "${food.rate}"),
-                    info(Icons.local_fire_department, "${food.kcal} kcal"),
+                    _info(Icons.star, "${food.rate}"),
+                    _info(Icons.local_fire_department, "${food.kcal} kcal"),
                   ],
                 ),
-
                 const SizedBox(height: 20),
                 const Text("Description",
                     style:
@@ -71,7 +71,7 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
   }
-  Widget info(IconData icon, String value) {
+  Widget _info(IconData icon, String value) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

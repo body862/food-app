@@ -11,7 +11,6 @@ class _MainLayoutState extends State<MainLayout> {
   final screens = const [
     HomeScreen(),
     CartScreen(),
-    Center(child: Text("Profile")),
   ];
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,8 @@ class _MainLayoutState extends State<MainLayout> {
         onTap: (i) => setState(() => index = i),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: "Cart"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart), label: "Cart"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),

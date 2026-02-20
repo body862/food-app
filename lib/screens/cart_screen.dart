@@ -1,67 +1,86 @@
 import 'package:flutter/material.dart';
-import '../controller/cart_controller.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/app_cubit.dart';
+import '../cubit/app_state.dart';
 import '../widgets/cart_item_widget.dart';
-class CartScreen extends StatefulWidget {
+class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
   @override
-  State<CartScreen> createState() => _CartScreenState();
-}
-class _CartScreenState extends State<CartScreen> {
-  @override
   Widget build(BuildContext context) {
-    double subtotal = CartController.getTotal();
-    double delivery = 5;
-    double taxes = 2.5;
-    double total = subtotal + delivery + taxes;
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: CartController.cartItems.length,
-              itemBuilder: (_, i) => CartItemWidget(
-                item: CartController.cartItems[i],
-                refresh: () => setState(() {}),
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.grey.shade300,
-                    blurRadius: 8,
-                    offset: const Offset(0, -3))
-              ],
-            ),
-            child: Column(
-              children: [
-                row("Subtotal", subtotal),
-                row("Delivery Fee", delivery),
-                row("Taxes", taxes),
-                const Divider(),
-                row("Total", total, isBold: true),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
+    return BlocBuilder<AppCubit, AppState>(
+      builder: (context, state) {
+        final cubit = context.read<AppCubit>();
+        final subtotal = cubit.getSubtotal();
+        const delivery = 5.0;
+        const taxes = 2.5;
+        final total = subtotal + delivery + taxes;
+        return Scaffold(
+          body: Column(
+            children: [
+              Expanded(
+                child: state.cartItems.isEmpty
+                    ? const Center(
+                  child: Text(
+                    "Your cart is empty",
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
-                  onPressed: () {},
-                  child: const Text("Checkout"),
                 )
-              ],
-            ),
-          )
-        ],
-      ),
+                    : ListView.builder(
+                  itemCount: state.cartItems.length,
+                  itemBuilder: (_, i) =>
+                      CartItemWidget(item: state.cartItems[i]),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade300,
+                      blurRadius: 8,
+                      offset: const Offset(0, -3),
+                    )
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _row("Subtotal", subtotal),
+                    _row("Delivery Fee", delivery),
+                    _row("Taxes", taxes),
+                    const Divider(),
+                    _row("Total", total, isBold: true),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: state.cartItems.isEmpty
+                          ? null
+                          : () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Order placed successfully!"),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      child: const Text("Checkout"),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
-  Widget row(String title, double value, {bool isBold = false}) {
+  Widget _row(String title, double value, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
